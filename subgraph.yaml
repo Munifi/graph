@@ -1,0 +1,83 @@
+specVersion: 0.0.2
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: AcquaNote
+    network: kovan
+    source:
+      address: "0x750A23D04E67F95bA11F849e835E69C2699fe0A9" # UPDATE THIS!
+      abi: AcquaNote
+      startBlock: 1
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - Note
+        - Issuer
+        - NoteNumberLookUp
+      abis:
+        - name: AcquaNote
+          file: ./abis/AcquaNote.json
+      eventHandlers:
+        - event: newNote(uint256,indexed address,string,string,uint256)
+          handler: handlenewNote
+        - event: newNotePrice(string,uint256)
+          handler: handleNewNotePrice
+      file: ./src/mapping.ts
+  - kind: ethereum/contract
+    name: AcquaToken
+    network: kovan
+    source:
+      address: "0x039Dd4686ed01a2177c72E1EcE1140b3C9353e5E" # UPDATE THIS!
+      abi: AcquaToken
+      startBlock: 1
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - Note
+        - Token
+        - Sale
+        - Transfer
+      abis:
+        - name: AcquaToken
+          file: ./abis/AcquaToken.json
+        - name: AcquaNote
+          file: ./abis/AcquaNote.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+        - event: boughtNote(uint256,string,address,uint256)
+          handler: handleBoughtNote
+        - event: mintedNote(uint256,string,address)
+          handler: handleMintedNote
+        - event: newTokenPrice(uint256,uint256)
+          handler: handleNewTokenPrice
+      file: ./src/mapping.ts
+  - kind: ethereum/contract
+    name: AcquaMediator
+    network: kovan
+    source:
+      address: "0x110fdBE1a26FB2A98AA5C7A5C285DCC0bd6838C2" # UPDATE THIS!
+      abi: AcquaMediator
+      startBlock: 1
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - Token
+      abis:
+        - name: AcquaMediator
+          file: ./abis/AcquaMediator.json
+        - name: AcquaToken
+          file: ./abis/AcquaToken.json
+      eventHandlers:
+        - event: tokenSentViaBridge(uint256,bytes32)
+          handler: handleTokenSentViaBridge
+        - event: newPrice(uint256)
+          handler: handleNewRelayPrice
+      file: ./src/mapping.ts

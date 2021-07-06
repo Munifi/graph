@@ -1,0 +1,95 @@
+enum SaleType {
+  primary
+  secondary
+}
+
+enum Network {
+  xdai
+  mainnet
+  local
+  kovan
+  sokol
+  binance
+  dot
+}
+
+type Note @entity {
+  id: ID!
+  noteNumber: BigInt!
+  jsonUrl: String!
+  issuer: Issuer!
+  limit: BigInt!
+  count: BigInt
+  tokens: [Token!] @derivedFrom(field: "note")
+  sales: [Sale!] @derivedFrom(field: "note")
+  createdAt: BigInt
+  mintPrice: BigInt
+  mintPriceSetAt: BigInt
+  mintPriceNonce: BigInt
+}
+
+type Token @entity {
+  id: ID!
+  note: Note!
+  owner: Bytes!
+  createdAt: BigInt!
+  network: Network!
+  price: BigInt
+  priceSetAt: BigInt
+  transfers: [TokenTransfer!] @derivedFrom(field: "token")
+  sales: [Sale!] @derivedFrom(field: "token")
+  upgradeTransfer: TokenTransfer
+}
+
+type Issuer @entity {
+  id: ID!
+  address: Bytes!
+  note: [Note]! @derivedFrom(field: "issuer")
+  noteCount: BigInt!
+  earnings: BigInt
+  sales: [Sale!] @derivedFrom(field: "issuer")
+}
+
+type Sale @entity {
+  id: ID!
+  buyer: Bytes!
+  seller: Bytes
+  price: BigInt!
+  token: Token!
+  note: Note!
+  issuer: Issuer!
+  createdAt: BigInt!
+  issuerTake: BigInt!
+  saleType: SaleType
+  transfer: TokenTransfer!
+}
+
+type TokenTransfer @entity {
+  id: ID!
+  token: Token!
+  from: Bytes!
+  to: Bytes!
+  createdAt: BigInt!
+  network: Network!
+}
+
+type RelayPrice @entity {
+  id: ID!
+  createdAt: BigInt!
+  price: BigInt!
+}
+
+type MetaData @entity {
+  id: ID!
+  value: String!
+}
+
+type Total @entity {
+  id: ID!
+  day: BigInt
+  notes: BigInt
+  tokens: BigInt
+  sales: BigInt
+  upgrades: BigInt
+  issuers: BigInt
+}
